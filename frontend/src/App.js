@@ -9,20 +9,23 @@ import {useEffect,useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import Login from "./Login/index";
 import { useLocalState } from "./util/UseLocalStorage";
+import {useUser} from "./UserProvider/index";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css"
 const App = () => {  
-      const [jwt,setJwt]=useLocalState("","jwt");
+      const user=useUser();
+      //const [jwt,setJwt]=useLocalState("","jwt");
    const getRoleFromJWT = () => {
-   if(jwt){
-    const decoded_jwt = jwtDecode(jwt);
+   if(user.jwt){
+    const decoded_jwt = jwtDecode(user.jwt);
    return decoded_jwt.authorities;
    }
         return [];
 }
-
-    const  [roles,setRoles]=useState(getRoleFromJWT());
-   //console.log(roles);
+     const  [roles,setRoles]=useState(getRoleFromJWT());
+    
+    
+   
    return (
       <div className="App">
         <Routes>

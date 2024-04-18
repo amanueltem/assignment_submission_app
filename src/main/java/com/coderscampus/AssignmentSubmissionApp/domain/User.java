@@ -27,6 +27,7 @@ public class User implements UserDetails {
     private Long id;
     private LocalDate cohortStartDate;
     private String username;
+    private String name;
     @JsonIgnore
     private String password;
     @JsonIgnore
@@ -89,5 +90,11 @@ public class User implements UserDetails {
     }
     public void setAuthorities(List<Authority> authorities){
         this.authorities=authorities;
+    }
+    public void setName(String name){
+        this.name=name;
+    }
+    public String getName(){
+        return name;
     }
 }

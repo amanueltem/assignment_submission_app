@@ -2,6 +2,8 @@ import { useState, useEffect ,useRef} from 'react'
 import { useLocalState } from "../util/UseLocalStorage";
 import ajax from "../services/fetchService"
 import StatusBadge from "../StatusBadge/index"
+import {useUser} from "../UserProvider/index"
+import CommentContainer from "../CommentContainer/index"
 import { Button, Form, Row, Container, Col, Badge, DropdownButton, ButtonGroup, Dropdown } from "react-bootstrap"
 const CodeReviewAssignmentView = () => {
   const assignmentId = window.location.href.split("/assignments/")[1];
@@ -12,7 +14,8 @@ const CodeReviewAssignmentView = () => {
     number: null,
     status:null,
   });
-  const [jwt, setJwt] = useLocalState("", "jwt");
+  const user=useUser();
+  //const [jwt, setJwt] = useLocalState("", "jwt");
   const [assignmentEnums, setAssignmentEnums] = useState([]);
   const [assignmentStatuses,setAssignmentStatuses]=useState([])
 
@@ -24,7 +27,7 @@ const previousAssignmentValue=useRef(assignment)
     setAssignment(newAssignment);
   }
   const persist=()=>{
-     ajax(`/api/assignments/${assignmentId}`, "PUT", jwt, assignment)
+     ajax(`/api/assignments/${assignmentId}`, "PUT", user.jwt, assignment)
       .then((assignmentData) => {
         setAssignment(assignmentData);
       }).catch((message) => console.log(message));
@@ -46,7 +49,7 @@ const previousAssignmentValue=useRef(assignment)
      previousAssignmentValue.current=assignment;
    },[assignment]);
   useEffect(() => {
-    ajax(`/api/assignments/${assignmentId}`, "GET", jwt).then((assignmentResponse) => {
+    ajax(`/api/assignments/${assignmentId}`, "GET", user.jwt).then((assignmentResponse) => {
       let assignmentData = assignmentResponse.assignment;
       if (assignmentData.branch === null) assignmentData.branch = "";
       if (assignmentData.githubUrl === null) assignmentData.githubUrl = "";
@@ -61,6 +64,7 @@ const previousAssignmentValue=useRef(assignment)
      
  */
   return (
+  <>
   <Container className="mt-5">
   <h1>Status: {assignment.status}</h1>
       <Row className="d-flex align-items-center">
@@ -138,11 +142,17 @@ const previousAssignmentValue=useRef(assignment)
           Back
           </Button>
           </div>
+          
+          
+     
         </>)
           :
           (<></>)
       }
+       <CommentContainer assignmentId={assignmentId}/>
     </Container>
+   
+    </>
   );
 }
 export default CodeReviewAssignmentView;

@@ -3,9 +3,13 @@ import { useLocalState } from "../util/UseLocalStorage";
 import ajax from "../services/fetchService"
 import StatusBadge from "../StatusBadge/index"
 import { Button, Form, Row, Container, Col, Badge, DropdownButton, ButtonGroup, Dropdown } from "react-bootstrap"
-import {useNavigate} from "react-router-dom"
+import {useNavigate,useParams} from "react-router-dom"
+import CommentContainer from "../CommentContainer/index"
+import {useUser} from "../UserProvider/index"
+
 const AssignmentView = () => {
   const assignmentId = window.location.href.split("/assignments/")[1];
+   //const assignmentId=useParams(
   const navigate=useNavigate();
   const [assignment, setAssignment] = useState({
     branch: "",
@@ -13,19 +17,22 @@ const AssignmentView = () => {
     number: null,
     status:null,
   });
-  const [jwt, setJwt] = useLocalState("", "jwt");
+  //const [jwt, setJwt] = useLocalState("", "jwt");
+  const user=useUser();
   const [assignmentEnums, setAssignmentEnums] = useState([]);
   const [assignmentStatuses,setAssignmentStatuses]=useState([])
 
+ 
+ 
 const previousAssignmentValue=useRef(assignment)
-
+           
   const updateAssignment = (prop, value) => {
     const newAssignment = { ...assignment };
     newAssignment[prop] = value;
     setAssignment(newAssignment);
   }
   const persist=()=>{
-     ajax(`/api/assignments/${assignmentId}`, "PUT", jwt, assignment)
+     ajax(`/api/assignments/${assignmentId}`, "PUT", user.jwt, assignment)
       .then((assignmentData) => {
         setAssignment(assignmentData);
       }).catch((message) => console.log(message));
@@ -39,6 +46,7 @@ const previousAssignmentValue=useRef(assignment)
       }
   }
   
+ 
   useEffect(()=>{
      if(previousAssignmentValue.current.status!==assignment.status){
        persist();
@@ -46,10 +54,11 @@ const previousAssignmentValue=useRef(assignment)
      previousAssignmentValue.current=assignment;
    },[assignment]);
   useEffect(() => {
-    ajax(`/api/assignments/${assignmentId}`, "GET", jwt).then((assignmentResponse) => {
+    ajax(`/api/assignments/${assignmentId}`, "GET", user.jwt).then((assignmentResponse) => {
       let assignmentData = assignmentResponse.assignment;
       if (assignmentData.branch === null) assignmentData.branch = "";
       if (assignmentData.githubUrl === null) assignmentData.githubUrl = "";
+      //console.log(assignmentData);
       setAssignment(assignmentData);
       setAssignmentEnums(assignmentResponse.assignmentEnums)
       setAssignmentStatuses(assignmentResponse.statusEnums)
@@ -82,6 +91,7 @@ const previousAssignmentValue=useRef(assignment)
             </Form.Label>
             <Col>
               <DropdownButton
+               key={assignment.number}
                 as={ButtonGroup}
                 variant="info"
                 onSelect={(selectedElement) => {
@@ -93,7 +103,7 @@ const previousAssignmentValue=useRef(assignment)
                   assignmentEnums.map((assignmentEnum) => (
 
                     <Dropdown.Item
-                      Key={assignmentEnum.assignmentNum}
+                      Key={assignmentEnum.status}
                       eventKey={assignmentEnum.assignmentNum}>
                       {assignmentEnum.assignmentNum}
                     </Dropdown.Item>
@@ -166,9 +176,13 @@ const previousAssignmentValue=useRef(assignment)
           <Button size="lg" variant="secondary" onClick={(e)=>navigate("/dashboard")}>
           Back
           </Button>
-          </div>)
+          </div>
+          )
           )
           }
+          
+         <CommentContainer assignmentId={assignmentId}/>
+         
         </>)
           :
           (<></>)

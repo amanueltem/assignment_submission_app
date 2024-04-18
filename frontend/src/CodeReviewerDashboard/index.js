@@ -6,17 +6,19 @@ import {jwtDecode} from 'jwt-decode'
 import StatusBadge from "../StatusBadge/index"
 import {useNavigate} from "react-router-dom"
 import { Button, Card ,Badge,Row,Col,Container} from "react-bootstrap"
+import {useUser} from "../UserProvider/index"
 const CodeReviewerDashboard = () => {
-    const [jwt, setJwt] = useLocalState("", "jwt");
+    const user=useUser();
+    //const [jwt, setJwt] = useLocalState("", "jwt");
     const [assignments, setAssignments] = useState(null);
     const navigate=useNavigate();
     useEffect(() => {
-        ajax("/api/assignments", "GET", jwt).then((assignmentsData) => {
+        ajax("/api/assignments", "GET", user.jwt).then((assignmentsData) => {
             setAssignments(assignmentsData);
         }).catch((message) => console.log(message));
     }, [])
     const createAssignment = () => {
-        ajax("/api/assignments", "POST", jwt).then(
+        ajax("/api/assignments", "POST", user.jwt).then(
             (assignment) => {
                 navigate(`/assignments/${assignment.id}`);
             }
@@ -24,14 +26,14 @@ const CodeReviewerDashboard = () => {
     };
     
     const claimAssignment=(assignment)=>{
-       const decodedJwt=jwtDecode(jwt);
-       const user={
+       const decodedJwt=jwtDecode(user.jwt);
+       const codeReviewer={
        username:decodedJwt.sub,
        }
-       assignment.codeReviewer=user;
+       assignment.codeReviewer=codeReviewer;
        assignment.status="In Review";
        console.log(assignment.id);
-    ajax(`/api/assignments/${assignment.id}`,"PUT",jwt,assignment).then(updatedAssignment=>{
+    ajax(`/api/assignments/${assignment.id}`,"PUT",user.jwt,assignment).then(updatedAssignment=>{
            //update the view for the assignment that changed
            const assignmentsCopy=[...assignments]
            const i=assignmentsCopy.findIndex(a=>a.id===assignment.id)
@@ -53,8 +55,8 @@ const CodeReviewerDashboard = () => {
               className="d-flex justify-content-end"
               style={{cursor:"pointer"}}
                onClick={(e)=>{
-                  setJwt(null);
-                  window.location.href="/login";
+                  user.setJwt(null);
+                  navigate("/login");
                }}>
                  Logout
               </div>

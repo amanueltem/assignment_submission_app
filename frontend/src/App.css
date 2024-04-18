@@ -11,3 +11,11 @@ margin-top:2em;
    background-color:white;
    white-space:nowrap;
 }
+
+
+.comment-bubble{
+background-color:#EEEEEE;
+border-radius:1em;
+padding:1em;
+margin: 1em 0em;
+}
