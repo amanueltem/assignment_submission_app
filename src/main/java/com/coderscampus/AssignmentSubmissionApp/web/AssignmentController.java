@@ -24,7 +24,6 @@ import com.coderscampus.AssignmentSubmissionApp.util.AuthorityUtil;
 
 @RestController
 @RequestMapping("/api/assignments")
-@CrossOrigin("http://localhost:3000")
 public class AssignmentController {
     @Autowired
     private AssignmentService assignmentService;
